@@ -15,9 +15,13 @@ struct Lexem
 {
 	string c;
 	LexType t;
-	Lexem() 
+	Lexem()
 	{
 		c = "";
+	}
+	Lexem(string &c1) 
+	{
+		c = c1;
 	}
 	Lexem(string& c1, LexType t1);
 	Lexem(const Lexem& c1);
@@ -38,7 +42,7 @@ public:
 		delete [] lexems;
 	}
 	Arithmetic& operator=(const Arithmetic& inputstr2);
-
+	bool operator==(const Arithmetic& inputstr2) const;
 	//функции
 
 	bool ProverkaNaBR(); //соответствие скобок
@@ -48,9 +52,8 @@ public:
 
 	bool prioritet(Lexem a, Lexem b);
 
-	bool ProvVce();
+	//bool ProvVce();
 
-	////////////////////////////////////////////
 	int PerevVPol(Lexem* lex);
 	double Calcul();
 };

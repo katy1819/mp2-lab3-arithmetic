@@ -46,10 +46,20 @@ Arithmetic& Arithmetic::operator=(const Arithmetic& inputstr2)
 		lexems[i] = inputstr2.lexems[i];
 	return *this;
 }
+
+bool Arithmetic::operator==(const Arithmetic& inputstr2) const
+{
+	if((inputstr == inputstr2.inputstr) && (nLex == inputstr2.nLex))
+		return true;
+	else
+		return false;
+}
+
 bool Arithmetic::ProverkaNaBR() //соответствие скобок
 {
 
 	int len = inputstr.length();
+	bool res = true;
 	TStack<int> st(len);
 	for(int i=0; i<len; i++)
 	{
@@ -64,29 +74,44 @@ bool Arithmetic::ProverkaNaBR() //соответствие скобок
 				if(!(st.IsEmpty()))
 					st.Pop();
 				else
-					return false;
+					res = false;
 			}
 		}
 	}
-	return true;
+	//if(!(st.IsEmpty()))
+	//{
+	//	if(res)
+	//	{
+	//		res = false;
+	//	}
+	//	while(!(st.IsEmpty()))
+	//		cout << st.Pop() << endl;
+	//}
+	return res;
 }
 bool Arithmetic::ProverkaNaSimv()
 {
-	int k = 0;
 	for(int i=0; i<nLex; i++)
 	{
 		if(lexems[i].t == UNKMOWN)
 		{
+			cout << "Nedopustimue symvolu" << endl;
+			cout << ' ' << lexems[i].c << endl;
 			return false;
 		}
 		else
 			if(lexems[i].t == VAL)
 			{
-				for(int j=0; i<lexems[i].c.length(); j++)
+				int k = 0;
+				for(int j=0; j<lexems[i].c.length(); j++)
 					if(lexems[i].c[i] == '.')
 						k++;
-				if(k>1 || lexems[i].c[0] == '.' || lexems[i].c[nLex-1] == '.')
+				if(k>1 || lexems[i].c[0] == '.' || lexems[i].c[lexems[i].c.length()-1] == '.')
+				{			
+					cout << "Nedopustimue symvolu" << endl;
+					cout << ' ' << lexems[i].c << endl;
 					return false;
+				}
 			}
 	}
 	return true;
@@ -94,8 +119,13 @@ bool Arithmetic::ProverkaNaSimv()
 bool Arithmetic::ProverkaNaProp()
 {
 	int pos = -1;
-	if(!(lexems[0].t == VAL || lexems[0].t == OP_BR || lexems[0].c[0] == '-'))
+	if(!(lexems[0].t == VAL || lexems[0].t == OP_BR || lexems[0].c[0] == '-'|| lexems[0].t == CL_BR)) ////////////
 	{
+		return false;
+	}
+	if(lexems[inputstr.length() - 1].t == OPER)
+	{
+		cout << "error" << endl;
 		return false;
 	}
 	for(int i=0; i<nLex-1; i++)
@@ -104,15 +134,18 @@ bool Arithmetic::ProverkaNaProp()
 
 		if((lexems[i].t == CL_BR || lexems[i].t == VAL) && (lexems[i+1].t  == OP_BR || lexems[i+1].t == VAL))
 		{
+			cout << "error" << endl;
 			return false;
 		}
 
 		if(lexems[i].t == OP_BR && ((lexems[i+1].t == OPER || lexems[i+1].c[0] == '-') || lexems[i+1].t == CL_BR))
 		{
+			cout << "error" << endl;
 			return false;
 		}
 		if(lexems[i].t == OPER && (lexems[i+1].t == OPER || lexems [i+1].t == CL_BR))
 		{
+			cout << "error" << endl;
 			return false;
 		}
 	}
@@ -129,10 +162,10 @@ void Arithmetic::Razbivka()
 			if(pos<4)
 				lexems[nLex].t = OPER;
 			else
-				if(pos = 5)
+				if(pos == 4)
 					lexems[nLex].t = OP_BR;
 				else
-					if(pos = 6)
+					if(pos == 5)
 						lexems[nLex].t = CL_BR;
 			lexems[nLex].c = c1;
 			nLex++;
@@ -162,10 +195,13 @@ bool Arithmetic::prioritet(Lexem a, Lexem b)
 	int p1, p2;
 	switch (a.c[0])
 	{ 
-	case '(': case ')':
+	case '(':
 		p1=0;
 		break;
-	case '+': case '-':
+	case '+': 
+		p1 = 1;
+		break;
+	case '-':
 		p1 = 1;
 		break;
 	default:
@@ -174,45 +210,51 @@ bool Arithmetic::prioritet(Lexem a, Lexem b)
 
 	switch (b.c[0])
 	{
-	case '(': case ')':
+	case '(':
 		p2 = 0;
 		break;
-	case '+': case '-':
+	case '+': 
+		p2 = 1;
+		break;
+	case '-':
 		p2 = 1;
 		break;
 	default:
 		p2 = 2;
 	}
+
 	if(p1 > p2)
 		return true;
 	else
 		return false;
 }
-bool Arithmetic::ProvVce()
-{
-	bool s1, s2, s3;
-	if(inputstr != "")
-	{
-		s2 =  ProverkaNaBR();
-		s1 = ProverkaNaSimv();
-		if(s1 == true && s2 == true)
-		{
-			s3 = ProverkaNaProp();
-			if(s3 == true)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return false;
-		}
-	}
-}
+
+//bool Arithmetic::ProvVce()
+//{
+//	bool s1, s2, s3;
+//	if(inputstr != "")
+//	{
+//		s2 =  ProverkaNaBR();
+//		s1 = ProverkaNaSimv();
+//		if(s1 == true && s2 == true)
+//		{
+//			s3 = ProverkaNaProp();
+//			if(s3 == true)
+//			{
+//				return true;
+//			}
+//			else
+//			{
+//				return false;
+//			}
+//		}
+//		else
+//		{
+//			return false;
+//		}
+//	}
+//}
+
 
 ////////////////////
 int Arithmetic::PerevVPol(Lexem* lex)
